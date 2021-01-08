@@ -1,0 +1,274 @@
+swagger: "2.0"
+info:
+  description: "Especificación de la API del servicio Android de Toolbox"
+  version: "1.0.0"
+  title: "Toolbox - Android Service"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "pabloa.massad@mitrol.net"
+host: "localhost:3100"
+basePath: "/"
+tags:
+- name: "storage"
+  description: "Servicios de gestión de datos entre apps"
+  externalDocs:
+    description: "Find out more"
+    url: "http://swagger.io"
+
+schemes:
+- "https"
+- "http"
+paths:
+  /deleteStorage:
+    get:
+      tags:
+      - "deleteStorage"
+      summary: "Elimina todo el contenido del storage"
+      description: "Si no hay info no borra"
+      operationId: "deleteAll"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Operation succesfull"
+        "404":
+          description: "Service not found"
+  /deleteStorage/{key}:
+    get:
+      tags:
+      - "deleteStorage"
+      summary: "Elimina el key global si existe o bien el key compuesto: appName_key"
+      description: "Si no hay info no borra"
+      operationId: "deleteKey"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "key"
+        in: "path"
+        description: "clave a eliminar"
+        required: true
+        type: "string"
+      - name: "appname"
+        in: "header"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Operation succesfull"
+        "400":
+          description: "Bad Request"             
+        "404":
+          description: "Service not found" 
+  /storage: 
+    get:
+      tags:
+        - "storage"
+      summary: "Listado de todos los key/values del storage"
+      description: "No se requiere argumentos" 
+      operationId: "getStorage"
+      produces:
+      - "application/json"
+      parameters: 
+      - name: "appname"
+        description: "nombre de la app, si no se envia se trae todo."
+        in: "header"
+        required: false
+        type: "string"
+      responses:
+        "200": 
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Item"
+        "400":
+          description: "Invalid status value"  
+    post:
+      tags:
+      - "storage"
+      summary: "Crea/actualiza un key/value"
+      description: ""
+      operationId: "postStorage"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Datos requeridos para crear un nuevo key/value"
+        required: true
+        schema:
+          $ref: "#/definitions/Item"
+      - name: "appname"
+        description: "nombre de la app, si no se envia se trae todo."
+        in: "header"
+        required: false
+        type: "string"          
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Item"
+        "400":
+          description: "Bad Request"
+        "405":
+          description: "Invalid input"
+  /storage/{key}:           
+    get:
+      tags:
+        - "storage"
+      summary: "Trae el key/value global o de la appname"
+      description: "Se envia el key como string" 
+      operationId: "getStorageByKey"
+      produces:
+      - "application/json"
+      parameters: 
+      - name: "key"
+        in: "path"
+        description: "clave a consultar"
+        required: true
+        type: "string"
+      - name: "appname"
+        description: "nombre de la app, si no se envia se trae todo."
+        in: "header"
+        required: false
+        type: "string"
+      responses:
+        "200": 
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Item"
+        "400":
+          description: "Invalid status value" 
+  /storage/app:           
+    get:
+      tags:
+        - "storage"
+      summary: "Trae todas las key/Value especificas para la aplicación en ejecución"
+      description: "Sin parametros, usa Headers" 
+      operationId: "getStorageByApp"
+      produces:
+      - "application/json"
+      parameters: 
+      - name: "appname"
+        description: "nombre de la app"
+        in: "header"
+        required: false
+        type: "string"
+      responses:
+        "200": 
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Item"
+        "400":
+          description: "Invalid status value"        
+  /logs:
+    get:
+      tags:
+        - "logs"
+      summary: "Trae archivo de logs global o x appname"
+      description: "" 
+      operationId: "getLogs"
+      produces:
+      - "application/json"
+      parameters: 
+      - name: "appname"
+        description: "nombre de la app, si no se envia se trae todo."
+        in: "header"
+        required: false
+        type: "string"
+      responses:
+        "200": 
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/LogItem"
+        "400":
+          description: "Invalid status value"  
+  /logs/{key}:
+    get:
+      tags:
+        - "logs"
+      summary: "Trae archivo de logs por key o x appname"
+      description: "" 
+      operationId: "getLog"
+      produces:
+      - "application/json"
+      parameters: 
+      - name: "key"
+        in: "path"
+        description: "clave a consultar"
+        required: true
+        type: "string"
+      - name: "appname"
+        description: "nombre de la app que realizo alguna operacion en el server."
+        in: "header"
+        required: false
+        type: "string"
+      responses:
+        "200": 
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/LogItem"
+        "400":
+          description: "Invalid status value" 
+  /clearLogs:
+    get:
+      tags:
+      - "clearLogs"
+      summary: "Elimina todo el contenido del archivo Logs"
+      description: "Elimina todo el contenido del archivo logDir/tserverlog.txt"
+      operationId: "cleanLog"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Operation succesfull"
+        "404":
+          description: "File not found"
+              
+     
+definitions:
+  Item:
+    type: "object"
+    properties:
+      key:
+        type: "string"
+        description: "key name"
+      value:
+        type: "string"
+        description: "storage value"
+  LogItem:
+    type: "object"
+    properties:
+      datetime:
+        type: "string"
+        description: "dd/mm/yy HH:MM"
+      usuario:
+        type: "string"
+        description: "Legajo del usuario" 
+      appname:
+        type: "string"
+        description: "Nombre de la aplicacion"
+      description:
+        type: "string"
+        description: "transaccion"
+      key:
+        type: "string"
+        description: "key del dictionary"
+      value:
+        type: "string"
+        description: "Value del dictionary"
+
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
